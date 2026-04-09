@@ -1,0 +1,47 @@
+import cv2
+import time
+
+url = "http://10.30.50.6:8080/video"
+
+def streaming(url, int = None, blur = None):
+    prev_frame_time = time.time() # Initialize here to avoid 1/0 error
+    
+    while True:
+        cap = cv2.VideoCapture(url)
+        if not cap.isOpened():
+            print("Cannot connect. Retrying...")
+            time.sleep(2)
+            continue
+
+        print("Connected!")
+
+        while True:
+            ret, frame = cap.read()
+            if int == 1:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            #Blur 
+            if blur:
+                frame = cv2.GaussianBlur(frame, (blur, blur), 0)
+
+            if not ret or frame is None:
+                print("Lost stream...")
+                break
+            
+            # Calculate FPS
+            next_frame_time = time.time()
+            fps = 1 / (next_frame_time - prev_frame_time)
+            prev_frame_time = next_frame_time
+            
+            yield frame, fps
+
+        cap.release() # Always release before trying to reconnect
+
+# Testing the generator
+for frame, fps in streaming(0, 1, 9): # Use 'url' variable here
+    cv2.putText(frame, f"FPS: {int(fps)}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.imshow('Stream', frame)
+    
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        break
+
+cv2.destroyAllWindows()
