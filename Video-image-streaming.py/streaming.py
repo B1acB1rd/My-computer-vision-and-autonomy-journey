@@ -1,7 +1,7 @@
 import cv2
 import time
 
-url = "http://10.30.50.6:8080/video"
+url = r'C:\Users\B1ACB1RD\Desktop\01.1 Code - Modern Computer Vision_05_06_2022\Modern Computer Vision\My-computer-vision-and-autonomy-journey\Homography computated\video-from-rawpixel-id-17027305-sd.mp4'
 
 def streaming(url, int = None, blur = None):
     prev_frame_time = time.time() # Initialize here to avoid 1/0 error
@@ -37,7 +37,7 @@ def streaming(url, int = None, blur = None):
         cap.release() # Always release before trying to reconnect
 
 # Testing the generator
-for frame, fps in streaming(0, 1, 9): # Use 'url' variable here
+for frame, fps in streaming(url): # Use 'url' variable here
     cv2.putText(frame, f"FPS: {int(fps)}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     cv2.imshow('Stream', frame)
     
