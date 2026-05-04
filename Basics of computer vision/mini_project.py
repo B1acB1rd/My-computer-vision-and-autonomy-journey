@@ -19,7 +19,7 @@ img = cv2.imread(r'C:\Users\B1ACB1RD\Pictures\Screenshot 2026-01-23 180136.png')
 pts = []
 plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 points = plt.ginput(2)
-points = [int(x) for x in points]
+points = None
 plt.close
 
 print(points)
