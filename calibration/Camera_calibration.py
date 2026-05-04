@@ -16,21 +16,21 @@ imgpoints = []
  
  
 # Defining the world coordinates for 3D points
-objp = np.zeros((1, CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
-objp[0,:,:2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
+objp = np.zeros((CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
+objp[:,:2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 prev_img_shape = None
  
 # Extracting path of individual image stored in a given directory
-folder_path = r'C:\Users\B1ACB1RD\Desktop\01.1 Code - Modern Computer Vision_05_06_2022\Modern Computer Vision\My-computer-vision-and-autonomy-journey\1'
+folder_path = r"C:\Users\B1ACB1RD\Desktop\01.1 Code - Modern Computer Vision_05_06_2022\Modern Computer Vision\My-computer-vision-and-autonomy-journey\calibration\images"
 images = glob.glob(os.path.join(folder_path, '*.jpg'))
 
 for fname in images:
     img = cv2.imread(fname)
-    #img = cv2.resize(img, (1000, 800))
+    img = cv2.resize(img, (1000, 800))
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     # Find the chess board corners
     # If desired number of corners are found in the image then ret = true
-    ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
+    ret, corners = cv2.findChessboardCornersSB(gray, CHECKERBOARD, cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
      
     """
     If desired number of corner are detected,
@@ -42,13 +42,25 @@ for fname in images:
         # refining pixel coordinates for given 2d points.
         corners2 = cv2.cornerSubPix(gray, corners, (11,11),(-1,-1), criteria)
          
+        corners_2d = corners2.reshape(7, 7, 2)
+
+        if corners_2d[0, 0, 0] > corners_2d[0, -1, 0]:
+            corners_2d = np.fliplr
+
+        if corners_2d[0, 0, 1] > corners_2d[-1, 0, -1]:
+            corners_2d = np.flipud(corners_2d)
+        
+        corners2 = corners_2d.reshape(-1, 1, 2)
+
         imgpoints.append(corners2)
  
         # Draw and display the corners
-        #img = cv2.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
+        img = cv2.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
      
-    #cv2.imshow('img',img)
-    #cv2.waitKey(0)
+    print(fname)
+    cv2.imshow(fname,img)
+    
+    cv2.waitKey(0)
  
 cv2.destroyAllWindows()
  
